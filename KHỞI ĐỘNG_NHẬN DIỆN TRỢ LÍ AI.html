@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khởi Động - Vòng Quay Quả Cầu 40 Học Sinh</title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #050711;
+            --card-bg: rgba(14, 18, 36, 0.94);
+            --neon-blue: #00f3ff;
+            --neon-purple: #a855f7;
+            --neon-yellow: #facc15;
+            --neon-green: #10b981;
+            --neon-red: #f43f5e;
+            --text-light: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #131738 0%, #030408 100%);
+            color: var(--text-light);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 15px 30px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(0, 243, 255, 0.25);
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+
+        .title-box h1 {
+            font-size: 24px;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .title-box p {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .stats-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--neon-blue);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .badge-score {
+            border-color: var(--neon-yellow);
+            color: var(--neon-yellow);
+        }
+
+        .btn-top {
+            background: rgba(0, 243, 255, 0.15);
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-top:hover {
+            background: var(--neon-blue);
+            color: #050711;
+        }
+
+        .question-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: var(--card-bg);
+            border: 2px solid rgba(168, 85, 247, 0.4);
+            border-radius: 20px;
+            padding: 25px 35px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7);
+            position: relative;
+        }
+
+        .question-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tag-question {
+            background: linear-gradient(90deg, #ec4899, #8b5cf6);
+            color: white;
+            font-weight: 800;
+            padding: 6px 18px;
+            border-radius: 10px;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        .picked-student-tag {
+            font-size: 20px;
+            font-weight: 800;
+            color: #94a3b8;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 24px;
+            border-radius: 12px;
+            border: 2px solid rgba(250, 204, 21, 0.5);
+        }
+
+        .picked-student-tag span {
+            color: var(--neon-yellow);
+            font-size: 28px;
+            font-weight: 900;
+            margin-left: 8px;
+            text-shadow: 0 0 12px rgba(250, 204, 21, 0.8);
+        }
+
+        .question-content {
+            font-size: 36px;
+            line-height: 1.45;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 15px 0;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+        }
+
+        .answer-box {
+            background: rgba(0, 0, 0, 0.55);
+            border: 2px dashed rgba(0, 243, 255, 0.4);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .answer-hidden {
+            font-size: 22px;
+            color: #64748b;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .answer-revealed {
+            font-size: 42px;
+            font-weight: 900;
+            color: var(--neon-yellow);
+            text-shadow: 0 0 25px rgba(250, 204, 21, 0.9);
+            animation: zoomAnswer 0.4s ease-out;
+        }
+
+        @keyframes zoomAnswer {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .control-panel {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            outline: none;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 15px;
+            padding: 12px 20px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        .btn-open-wheel {
+            background: linear-gradient(90deg, #ec4899, #8b5cf6);
+            color: white;
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.6);
+            font-size: 16px;
+            padding: 13px 24px;
+        }
+
+        .btn-reveal {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: white;
+        }
+
+        .btn-correct {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #050711;
+        }
+
+        .btn-wrong {
+            background: linear-gradient(135deg, #f43f5e, #be123c);
+            color: white;
+        }
+
+        .btn-next {
+            background: #334155;
+            color: #f1f5f9;
+            margin-left: auto;
+        }
+
+        .pass-alert {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            background: rgba(244, 63, 94, 0.95);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 16px;
+            box-shadow: 0 0 25px rgba(244, 63, 94, 0.8);
+            animation: pulse 0.8s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.06); }
+        }
+
+        /* VÒNG QUAY QUẢ CẦU 3D */
+        .wheel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #0f132e 0%, #030409 100%);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .wheel-overlay.active {
+            display: flex;
+        }
+
+        .wheel-header-title {
+            position: absolute;
+            top: 25px;
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--neon-yellow);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 25px rgba(250, 204, 21, 0.8);
+            z-index: 100;
+        }
+
+        .globe-viewport {
+            width: 100vw;
+            height: 80vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+        }
+
+        .student-node {
+            position: absolute;
+            width: 82px;
+            height: 100px;
+            background: rgba(14, 26, 60, 0.85);
+            border: 2px solid rgba(0, 243, 255, 0.6);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.35);
+            transform-origin: center center;
+            transition: opacity 0.2s, border-color 0.2s;
+        }
+
+        .student-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0284c7, #6366f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 6px;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+
+        .student-num-badge {
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--neon-yellow);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 2px 10px;
+            border-radius: 8px;
+        }
+
+        .winner-spotlight {
+            position: absolute;
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            animation: awardPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes awardPop {
+            0% { transform: scale(0.1) rotate(-15deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .winner-card {
+            width: 260px;
+            height: 320px;
+            background: linear-gradient(145deg, #1a1e4a, #0b0e26);
+            border: 4px solid var(--neon-yellow);
+            border-radius: 24px;
+            box-shadow: 0 0 60px rgba(250, 204, 21, 0.9), inset 0 0 25px rgba(250, 204, 21, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .winner-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 30px rgba(250, 204, 21, 0.8);
+        }
+
+        .winner-name {
+            font-size: 30px;
+            font-weight: 900;
+            color: var(--neon-yellow);
+            text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(250, 204, 21, 0.9);
+        }
+
+        .winner-label {
+            font-size: 15px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        /* HỘP CÀI ĐẶT NHẠC */
+        .audio-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .audio-modal-box {
+            background: #0f172a;
+            border: 2px solid var(--neon-blue);
+            border-radius: 18px;
+            padding: 25px 30px;
+            width: 540px;
+            max-width: 90vw;
+            box-shadow: 0 0 35px rgba(0, 243, 255, 0.4);
+        }
+
+        .audio-modal-box h2 {
+            font-size: 20px;
+            color: var(--neon-yellow);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+        }
+
+        .input-group input[type="text"] {
+            width: 100%;
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: #f8fafc;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .input-group input[type="file"] {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 6px;
+            display: block;
+        }
+
+        .btn-save-audio {
+            background: var(--neon-blue);
+            color: #050711;
+            width: 100%;
+            justify-content: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="title-box">
+            <h1>Khởi Động: Nhận Diện Trợ Lý AI</h1>
+            <p>Ứng dụng Trí tuệ nhân tạo hỗ trợ đổi mới dạy học (Danh sách 40 học sinh)</p>
+        </div>
+        <div class="stats-box">
+            <div class="badge" id="progressDisplay">Thử thách: 1 / 5</div>
+            <div class="badge badge-score" id="scoreDisplay">Điểm: 0</div>
+            <button class="btn-top" onclick="openAudioSettings()">🎵 Cài Đặt Nhạc</button>
+            <button class="btn-top" onclick="toggleFullscreen()">⛶ Toàn màn hình</button>
+        </div>
+    </header>
+
+    <div class="question-screen">
+        <div class="question-top-bar">
+            <span class="tag-question" id="questionTag">TÌNH HUỐNG 1</span>
+            <div class="picked-student-tag" id="studentTag">Người trả lời: <span>Chưa chọn</span></div>
+        </div>
+
+        <div class="pass-alert" id="passAlert">
+            🔔 NHƯỜNG QUYỀN CHO CẢ LỚP XUNG PHONG! <span id="timerCountdown">(10s)</span>
+        </div>
+
+        <div class="question-content" id="questionContent">Đang tải câu hỏi...</div>
+
+        <div class="answer-box">
+            <div class="answer-hidden" id="answerDisplay">❓ ĐÁP ÁN BÍ MẬT ĐANG ĐƯỢC KHÓA</div>
+        </div>
+
+        <div class="control-panel">
+            <button class="btn-open-wheel" onclick="openWheel()">🌐 XOAY QUẢ CẦU GỌI HỌC SINH (8s)</button>
+            <button class="btn-reveal" onclick="revealAnswer()">🔓 Mở Đáp Án</button>
+            <button class="btn-correct" onclick="gradeAnswer(true)">⭐ Đúng (+10đ)</button>
+            <button class="btn-wrong" onclick="gradeAnswer(false)">❌ Sai / Nhường Lớp</button>
+            <button class="btn-next" onclick="nextQuestion()">Câu Tiếp Theo ➔</button>
+        </div>
+    </div>
+
+    <!-- QUẢ CẦU 3D -->
+    <div class="wheel-overlay" id="wheelOverlay">
+        <div class="wheel-header-title">✨ NGƯỜI ĐƯỢC CHỌN LÀ AI? ✨</div>
+        <div class="globe-viewport" id="globeViewport"></div>
+
+        <div class="winner-spotlight" id="winnerSpotlight">
+            <div class="winner-card">
+                <div class="winner-avatar">🎓</div>
+                <div class="winner-name" id="winnerNumberText">SỐ 15</div>
+                <div class="winner-label">CHÚC MỪNG EM LÊN BẢNG!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CỬA SỔ CÀI ĐẶT NHẠC -->
+    <div class="audio-modal" id="audioModal">
+        <div class="audio-modal-box">
+            <h2>🎵 Cài Đặt Âm Nhạc <span style="cursor:pointer;" onclick="closeAudioSettings()">✕</span></h2>
+            
+            <div class="input-group">
+                <label>1. Nhạc xoay số dồn dập (Dán link .mp3 hoặc bấm chọn file):</label>
+                <input type="text" id="spinMusicUrl" placeholder="Dán link drive hoặc link mp3...">
+                <input type="file" id="spinMusicFile" accept="audio/*">
+            </div>
+
+            <div class="input-group">
+                <label>2. Nhạc trao giải / Đúng thưởng (Dán link .mp3 hoặc bấm chọn file):</label>
+                <input type="text" id="winMusicUrl" placeholder="Dán link drive hoặc link mp3 trao thưởng...">
+                <input type="file" id="winMusicFile" accept="audio/*">
+            </div>
+
+            <button class="btn-save-audio" onclick="saveAudioSettings()">💾 Lưu Cấu Hình Âm Nhạc</button>
+        </div>
+    </div>
+
+    <script>
+        const scenarios = [
+            {
+                id: 1,
+                tag: "TÌNH HUỐNG 1",
+                text: "Giáo viên có một ý tưởng dạy học và muốn phát triển thành kịch bản chi tiết, lời dẫn, giáo án, câu hỏi trắc nghiệm, hình ảnh minh họa và hoạt động học tập sáng tạo nên sử dụng công cụ AI nào phù hợp nhất?",
+                answer: "ChatGPT"
+            },
+            {
+                id: 2,
+                tag: "TÌNH HUỐNG 2",
+                text: "Giáo viên muốn tìm kiếm thông tin thời gian thực, phân tích tài liệu, soạn bài, tạo hình ảnh và video minh họa, đồng thời khai thác các tiện ích trong hệ sinh thái Google nên sử dụng công cụ AI nào phù hợp nhất?",
+                answer: "Google Gemini"
+            },
+            {
+                id: 3,
+                tag: "TÌNH HUỐNG 3",
+                text: "Giáo viên cần AI đọc nhiều tài liệu PDF, word dung lượng lớn, tổng hợp nội dung, phân tích chuyên sâu, chỉnh sửa báo cáo chuyên môn và xây dựng văn bản dài với bố cục logic, soạn giáo án, báo cáo, soạn đề kiểm tra với bố cục đẹp đúng chuẩn nên sử dụng công cụ AI nào?",
+                answer: "Claude AI"
+            },
+            {
+                id: 4,
+                tag: "TÌNH HUỐNG 4",
+                text: "Giáo viên muốn tạo video mô phỏng hiện tượng Vật lí, tình huống thực tế hoặc những cảnh phim minh họa bài học có hình ảnh chuyển động và âm thanh sinh động. Đây là công cụ AI nào?",
+                answer: "Veo 3"
+            },
+            {
+                id: 5,
+                tag: "TÌNH HUỐNG 5",
+                text: "Giáo viên muốn biến một ý tưởng thành ứng dụng trò chơi tương tác có giao diện đẹp, hiệu ứng, tính điểm và phản hồi đáp án ngay lập tức, chỉ bằng cách viết câu lệnh tiếng Việt nên sử dụng công cụ AI nào?",
+                answer: "Google AI Studio"
+            }
+        ];
+
+        const TOTAL_STUDENTS = 40;
+        let currentIndex = 0;
+        let score = 0;
+        let pickedNumbers = new Set();
+        let countdownTimer = null;
+
+        let spinAudio = new Audio();
+        let winAudio = new Audio();
+        
+        let defaultSpinAudioUrl = "https://assets.mixkit.co/active_storage/sfx/2874/2874-preview.mp3"; 
+        let defaultWinAudioUrl = "https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"; 
+
+        spinAudio.src = defaultSpinAudioUrl;
+        winAudio.src = defaultWinAudioUrl;
+
+        // Tắt tính năng lặp lại vô tận
+        spinAudio.loop = false;
+        winAudio.loop = false;
+
+        let winAudioTimeout = null;
+        let spinAudioTimeout = null;
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function stopAllAudios() {
+            if (winAudioTimeout) { clearTimeout(winAudioTimeout); winAudioTimeout = null; }
+            if (spinAudioTimeout) { clearTimeout(spinAudioTimeout); spinAudioTimeout = null; }
+
+            spinAudio.pause();
+            spinAudio.currentTime = 0;
+
+            winAudio.pause();
+            winAudio.currentTime = 0;
+        }
+
+        // Phát nhạc xoay số đúng 8 giây rồi tắt
+        function playSpinSound(durationMs = 8000) {
+            stopAllAudios();
+            spinAudio.play().catch(() => {});
+
+            spinAudioTimeout = setTimeout(() => {
+                spinAudio.pause();
+                spinAudio.currentTime = 0;
+            }, durationMs);
+        }
+
+        // Phát nhạc trao giải đúng 3 giây rồi tắt
+        function playWinAwardSound(durationMs = 3000) {
+            stopAllAudios();
+            winAudio.play().catch(() => {});
+
+            winAudioTimeout = setTimeout(() => {
+                winAudio.pause();
+                winAudio.currentTime = 0;
+            }, durationMs);
+        }
+
+        function playSynthBeats(pitch = 100) {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(pitch, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.12);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            } catch(e){}
+        }
+
+        function openAudioSettings() {
+            document.getElementById('audioModal').style.display = 'flex';
+        }
+
+        function closeAudioSettings() {
+            document.getElementById('audioModal').style.display = 'none';
+        }
+
+        function formatDriveUrl(url) {
+            if (url.includes("drive.google.com") && url.includes("/d/")) {
+                let id = url.split("/d/")[1].split("/")[0];
+                return `https://drive.google.com/uc?export=download&id=${id}`;
+            }
+            return url;
+        }
+
+        function saveAudioSettings() {
+            const spinUrl = document.getElementById('spinMusicUrl').value.trim();
+            const winUrl = document.getElementById('winMusicUrl').value.trim();
+            const spinFile = document.getElementById('spinMusicFile').files[0];
+            const winFile = document.getElementById('winMusicFile').files[0];
+
+            if (spinFile) {
+                spinAudio.src = URL.createObjectURL(spinFile);
+            } else if (spinUrl) {
+                spinAudio.src = formatDriveUrl(spinUrl);
+            }
+
+            if (winFile) {
+                winAudio.src = URL.createObjectURL(winFile);
+            } else if (winUrl) {
+                winAudio.src = formatDriveUrl(winUrl);
+            }
+
+            alert("Đã cập nhật nguồn âm nhạc thành công!");
+            closeAudioSettings();
+        }
+
+        let spherePoints = [];
+        let sphereRadius = 260;
+
+        function initGlobePoints() {
+            spherePoints = [];
+            const viewport = document.getElementById('globeViewport');
+            viewport.innerHTML = '';
+
+            const phi = Math.PI * (3 - Math.sqrt(5));
+
+            for (let i = 0; i < TOTAL_STUDENTS; i++) {
+                const num = i + 1;
+                const y = 1 - (i / (TOTAL_STUDENTS - 1)) * 2;
+                const radiusAtY = Math.sqrt(1 - y * y);
+                const theta = phi * i;
+
+                const x = Math.cos(theta) * radiusAtY;
+                const z = Math.sin(theta) * radiusAtY;
+
+                const el = document.createElement('div');
+                el.className = 'student-node';
+                el.id = `node-${num}`;
+                el.innerHTML = `
+                    <div class="student-avatar">👤</div>
+                    <div class="student-num-badge">SỐ ${num}</div>
+                `;
+
+                if (pickedNumbers.has(num)) {
+                    el.style.opacity = '0.2';
+                    el.style.filter = 'grayscale(100%)';
+                }
+
+                viewport.appendChild(el);
+
+                spherePoints.push({
+                    id: num,
+                    x: x * sphereRadius,
+                    y: y * sphereRadius,
+                    z: z * sphereRadius,
+                    element: el
+                });
+            }
+        }
+
+        function renderGlobe(rotY, rotX) {
+            const cosY = Math.cos(rotY);
+            const sinY = Math.sin(rotY);
+            const cosX = Math.cos(rotX);
+            const sinX = Math.sin(rotX);
+
+            spherePoints.forEach(pt => {
+                let x1 = pt.x * cosY - pt.z * sinY;
+                let z1 = pt.z * cosY + pt.x * sinY;
+
+                let y1 = pt.y * cosX - z1 * sinX;
+                let z2 = z1 * cosX + pt.y * sinX;
+
+                const fov = 650;
+                const scale = fov / (fov + z2);
+                const screenX = x1 * scale;
+                const screenY = y1 * scale;
+
+                const alpha = (z2 + sphereRadius) / (2 * sphereRadius);
+                pt.element.style.transform = `translate3d(${screenX}px, ${screenY}px, ${z2}px) scale(${scale})`;
+                pt.element.style.zIndex = Math.floor(scale * 100);
+
+                if (!pickedNumbers.has(pt.id)) {
+                    pt.element.style.opacity = Math.max(0.25, Math.min(1, alpha + 0.3));
+                }
+            });
+        }
+
+        // XOAY QUẢ CẦU ĐÚNG 8 GIÂY
+        function openWheel() {
+            const available = [];
+            for (let i = 1; i <= TOTAL_STUDENTS; i++) {
+                if (!pickedNumbers.has(i)) available.push(i);
+            }
+            if (available.length === 0) {
+                alert("Đã gọi hết toàn bộ 40 học sinh!");
+                return;
+            }
+
+            const overlay = document.getElementById('wheelOverlay');
+            const spotlight = document.getElementById('winnerSpotlight');
+            spotlight.style.display = 'none';
+            overlay.classList.add('active');
+
+            initGlobePoints();
+
+            let startTime = performance.now();
+            let duration = 8000; // Đúng 8 giây
+            let currentRotY = 0;
+            let currentRotX = 0.2;
+            let lastBeat = 0;
+
+            // Bắt đầu phát nhạc quay dồn dập (tự ngắt sau 8s)
+            playSpinSound(8000);
+
+            function animateSpin(now) {
+                let elapsed = now - startTime;
+                let progress = elapsed / duration;
+
+                let speed = (1 - progress * 0.75) * 0.16;
+                currentRotY += speed;
+                currentRotX += Math.sin(elapsed * 0.002) * 0.005;
+
+                renderGlobe(currentRotY, currentRotX);
+
+                if (elapsed < duration) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    // Dừng quay: Tắt nhạc quay, chuyển sang nhạc trao giải phát đúng 3s
+                    const luckyNum = available[Math.floor(Math.random() * available.length)];
+                    pickedNumbers.add(luckyNum);
+
+                    spherePoints.forEach(pt => pt.element.style.opacity = '0');
+
+                    spotlight.style.display = 'flex';
+                    document.getElementById('winnerNumberText').innerText = `SỐ ${luckyNum}`;
+
+                    // Nhạc trao giải phát đúng 3 giây rồi tắt
+                    playWinAwardSound(3000);
+
+                    confetti({
+                        particleCount: 220,
+                        spread: 140,
+                        origin: { y: 0.6 }
+                    });
+
+                    // Sau 3 giây tắt overlay trở về màn hình câu hỏi
+                    setTimeout(() => {
+                        overlay.classList.remove('active');
+                        document.getElementById('studentTag').innerHTML = `Người trả lời: <span>Số ${luckyNum}</span>`;
+                    }, 3000);
+                }
+            }
+
+            requestAnimationFrame(animateSpin);
+        }
+
+        function loadQuestion() {
+            stopAllAudios();
+            const current = scenarios[currentIndex];
+            document.getElementById('questionTag').innerText = current.tag;
+            document.getElementById('questionContent').innerText = current.text;
+            document.getElementById('progressDisplay').innerText = `Thử thách: ${currentIndex + 1} / ${scenarios.length}`;
+            
+            const ansBox = document.getElementById('answerDisplay');
+            ansBox.className = 'answer-hidden';
+            ansBox.innerText = '❓ ĐÁP ÁN BÍ MẬT ĐANG ĐƯỢC KHÓA';
+
+            document.getElementById('studentTag').innerHTML = 'Người trả lời: <span>Chưa chọn</span>';
+            document.getElementById('passAlert').style.display = 'none';
+            if (countdownTimer) clearInterval(countdownTimer);
+        }
+
+        function revealAnswer() {
+            const ansBox = document.getElementById('answerDisplay');
+            ansBox.className = 'answer-revealed';
+            ansBox.innerText = `💡 ${scenarios[currentIndex].answer}`;
+        }
+
+        function gradeAnswer(isCorrect) {
+            if (isCorrect) {
+                score += 10;
+                document.getElementById('scoreDisplay').innerText = `Điểm: ${score}`;
+                revealAnswer();
+                confetti({ particleCount: 180, spread: 110, origin: { y: 0.6 } });
+                
+                // Nhạc trao giải phát đúng 3 giây rồi tắt
+                playWinAwardSound(3000);
+            } else {
+                stopAllAudios();
+                playSynthBeats(70);
+                triggerPass();
+            }
+        }
+
+        function triggerPass() {
+            const alertBox = document.getElementById('passAlert');
+            alertBox.style.display = 'block';
+            let timeLeft = 10;
+            document.getElementById('timerCountdown').innerText = `(${timeLeft}s)`;
+
+            if (countdownTimer) clearInterval(countdownTimer);
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    document.getElementById('timerCountdown').innerText = `(${timeLeft}s)`;
+                } else {
+                    clearInterval(countdownTimer);
+                    document.getElementById('timerCountdown').innerText = '(Hết giờ!)';
+                }
+            }, 1000);
+        }
+
+        function nextQuestion() {
+            stopAllAudios();
+            if (currentIndex < scenarios.length - 1) {
+                currentIndex++;
+                loadQuestion();
+            } else {
+                alert(`Chúc mừng đã hoàn thành 5 thử thách! Tổng điểm: ${score}`);
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => alert(err.message));
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        window.onload = () => {
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>
